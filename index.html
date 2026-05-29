@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speed Calendar Year Training</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #000;
+      --text: #fff;
+      --muted: #9a9a9a;
+      --panel: #111;
+      --border: #6f6f6f;
+      --button: #181818;
+      --button-hover: #292929;
+      --blue: #2f8cff;
+      --red: #ff4c4c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      align-items: center;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif;
+      justify-content: center;
+      min-height: 100svh;
+    }
+
+    main {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(18px, 4vw, 32px);
+      justify-content: center;
+      max-width: 720px;
+      padding: 28px 18px;
+      text-align: center;
+      width: 100%;
+    }
+
+    #question {
+      font-size: clamp(96px, 28vw, 220px);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      line-height: 0.9;
+      min-height: 0.9em;
+    }
+
+    .result-box {
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      color: var(--muted);
+      display: grid;
+      font-size: clamp(28px, 8vw, 52px);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      min-height: 82px;
+      padding: 14px 18px;
+      width: min(100%, 520px);
+    }
+
+    .result-box span {
+      min-width: 1.5em;
+    }
+
+    .answer-buttons {
+      display: grid;
+      gap: clamp(7px, 1.8vw, 12px);
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      width: min(100%, 560px);
+    }
+
+    .answer-buttons button {
+      aspect-ratio: 1;
+      background: var(--button);
+      border: 1px solid #3e3e3e;
+      border-radius: 12px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: clamp(20px, 6vw, 34px);
+      font-weight: 600;
+      transition: background-color 80ms ease, border-color 80ms ease, transform 80ms ease;
+    }
+
+    .answer-buttons button:hover,
+    .answer-buttons button:focus-visible {
+      background: var(--button-hover);
+      border-color: var(--text);
+      outline: none;
+    }
+
+    .answer-buttons button:active {
+      transform: scale(0.96);
+    }
+
+    .settings {
+      width: min(100%, 520px);
+    }
+
+    .settings-toggle {
+      background: transparent;
+      border: 0;
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      font-size: 18px;
+      padding: 4px 8px;
+    }
+
+    .settings-panel {
+      background: var(--panel);
+      border: 1px solid #2d2d2d;
+      border-radius: 14px;
+      display: none;
+      margin-top: 12px;
+      padding: 18px;
+      text-align: left;
+    }
+
+    .settings-panel.open {
+      display: block;
+    }
+
+    .mode-row {
+      align-items: center;
+      display: flex;
+      gap: 10px;
+      margin: 0 0 14px;
+    }
+
+    .mode-row:last-child {
+      margin-bottom: 0;
+    }
+
+    input[type="radio"],
+    input[type="checkbox"] {
+      accent-color: var(--text);
+      height: 18px;
+      width: 18px;
+    }
+
+    .group-options {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      margin-top: 10px;
+      padding-left: 28px;
+    }
+
+    .group-options label {
+      align-items: center;
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    #modeLabel {
+      color: var(--muted);
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      min-height: 1.4em;
+    }
+
+    .correct {
+      color: var(--blue);
+    }
+
+    .wrong {
+      color: var(--red);
+    }
+
+    @media (max-width: 420px) {
+      main {
+        gap: 18px;
+        padding-inline: 12px;
+      }
+
+      .result-box {
+        min-height: 68px;
+        padding-inline: 10px;
+      }
+
+      .answer-buttons {
+        gap: 6px;
+      }
+
+      .answer-buttons button {
+        border-radius: 9px;
+      }
+
+      .group-options {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div id="question" aria-live="polite">00</div>
+
+    <div class="result-box" aria-label="前回の結果">
+      <span id="lastQuestion"></span>
+      <span id="lastAnswer"></span>
+      <span id="lastCorrect"></span>
+    </div>
+
+    <div class="answer-buttons" aria-label="回答ボタン">
+      <button type="button" data-answer="0">0</button>
+      <button type="button" data-answer="1">1</button>
+      <button type="button" data-answer="2">2</button>
+      <button type="button" data-answer="3">3</button>
+      <button type="button" data-answer="4">4</button>
+      <button type="button" data-answer="5">5</button>
+      <button type="button" data-answer="6">6</button>
+    </div>
+
+    <section class="settings">
+      <button id="settingsToggle" class="settings-toggle" type="button" aria-expanded="false" aria-controls="settingsPanel">
+        ▼ 出題設定
+      </button>
+
+      <div id="settingsPanel" class="settings-panel">
+        <label class="mode-row">
+          <input type="radio" name="mode" value="all" checked>
+          <span>全部モード</span>
+        </label>
+
+        <label class="mode-row">
+          <input type="radio" name="mode" value="group">
+          <span>グループ判定モード</span>
+        </label>
+
+        <div class="group-options" aria-label="グループ選択">
+          <label><input type="checkbox" value="0">0</label>
+          <label><input type="checkbox" value="1">1</label>
+          <label><input type="checkbox" value="2">2</label>
+          <label><input type="checkbox" value="3">3</label>
+          <label><input type="checkbox" value="4">4</label>
+          <label><input type="checkbox" value="5">5</label>
+          <label><input type="checkbox" value="6">6</label>
+        </div>
+      </div>
+    </section>
+
+    <div id="modeLabel">Mode: All</div>
+  </main>
+
+  <script>
+    const values = [
+      0,1,2,3,5,6,0,1,3,4,
+      5,6,1,2,3,4,6,0,1,2,
+      4,5,6,0,2,3,4,5
+    ];
+
+    const questionEl = document.getElementById('question');
+    const lastQuestionEl = document.getElementById('lastQuestion');
+    const lastAnswerEl = document.getElementById('lastAnswer');
+    const lastCorrectEl = document.getElementById('lastCorrect');
+    const settingsToggle = document.getElementById('settingsToggle');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const modeLabel = document.getElementById('modeLabel');
+    const modeInputs = document.querySelectorAll('input[name="mode"]');
+    const groupInputs = document.querySelectorAll('.group-options input[type="checkbox"]');
+
+    let currentNumber = 0;
+
+    function yearValue(n) {
+      return values[n % 28];
+    }
+
+    function formatNumber(n) {
+      return String(n).padStart(2, '0');
+    }
+
+    function selectedGroups() {
+      return Array.from(groupInputs)
+        .filter(input => input.checked)
+        .map(input => Number(input.value));
+    }
+
+    function currentMode() {
+      return document.querySelector('input[name="mode"]:checked').value;
+    }
+
+    function numbersForValue(value) {
+      return Array.from({ length: 100 }, (_, n) => n).filter(n => yearValue(n) === value);
+    }
+
+    function randomItem(items) {
+      return items[Math.floor(Math.random() * items.length)];
+    }
+
+    function nextAllQuestion() {
+      return Math.floor(Math.random() * 100);
+    }
+
+    function nextGroupQuestion(groups) {
+      if (groups.length === 0 || groups.length === 7) {
+        return nextAllQuestion();
+      }
+
+      const buckets = groups.map(group => numbersForValue(group));
+      const otherNumbers = Array.from({ length: 100 }, (_, n) => n)
+        .filter(n => !groups.includes(yearValue(n)));
+      buckets.push(otherNumbers);
+
+      return randomItem(randomItem(buckets));
+    }
+
+    function setNextQuestion() {
+      const groups = selectedGroups();
+      currentNumber = currentMode() === 'group' ? nextGroupQuestion(groups) : nextAllQuestion();
+      questionEl.textContent = formatNumber(currentNumber);
+    }
+
+    function isCorrectAnswer(answer, correct, groups) {
+      if (currentMode() !== 'group' || groups.length === 0 || groups.length === 7) {
+        return answer === correct;
+      }
+
+      if (groups.includes(correct)) {
+        return answer === correct;
+      }
+
+      return !groups.includes(answer);
+    }
+
+    function updateModeLabel() {
+      const groups = selectedGroups();
+      modeLabel.textContent = currentMode() === 'all'
+        ? 'Mode: All'
+        : `Mode: Group (${groups.length ? groups.join(',') : 'none'})`;
+    }
+
+    function answer(value) {
+      const correct = yearValue(currentNumber);
+      const groups = selectedGroups();
+      const ok = isCorrectAnswer(value, correct, groups);
+
+      lastQuestionEl.textContent = formatNumber(currentNumber);
+      lastAnswerEl.textContent = value;
+      lastCorrectEl.textContent = correct;
+      lastCorrectEl.className = ok ? 'correct' : 'wrong';
+
+      setNextQuestion();
+    }
+
+    document.querySelectorAll('[data-answer]').forEach(button => {
+      button.addEventListener('click', () => answer(Number(button.dataset.answer)));
+    });
+
+    document.addEventListener('keydown', event => {
+      if (/^[0-6]$/.test(event.key)) {
+        answer(Number(event.key));
+      }
+    });
+
+    settingsToggle.addEventListener('click', () => {
+      const open = !settingsPanel.classList.contains('open');
+      settingsPanel.classList.toggle('open', open);
+      settingsToggle.setAttribute('aria-expanded', String(open));
+      settingsToggle.textContent = open ? '▲ 出題設定' : '▼ 出題設定';
+    });
+
+    modeInputs.forEach(input => input.addEventListener('change', () => {
+      updateModeLabel();
+      setNextQuestion();
+    }));
+
+    groupInputs.forEach(input => input.addEventListener('change', () => {
+      updateModeLabel();
+      if (currentMode() === 'group') {
+        setNextQuestion();
+      }
+    }));
+
+    updateModeLabel();
+    setNextQuestion();
+  </script>
+</body>
+</html>
