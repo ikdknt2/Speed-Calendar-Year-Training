@@ -428,6 +428,17 @@
       questionEl.textContent = formatNumber(currentNumber);
     }
 
+    function isOtherGroupAnswer(correct, groups) {
+      return currentMode() === 'group'
+        && groups.length > 0
+        && groups.length < 7
+        && !groups.includes(correct);
+    }
+
+    function displayCorrectValue(correct, groups) {
+      return isOtherGroupAnswer(correct, groups) ? 'X' : correct;
+    }
+
     function isCorrectAnswer(answer, correct, groups) {
       if (currentMode() !== 'group' || groups.length === 0 || groups.length === 7) {
         return answer === correct;
@@ -470,7 +481,7 @@
 
       lastQuestionEl.textContent = formatNumber(currentNumber);
       lastAnswerEl.textContent = value;
-      lastCorrectEl.textContent = correct;
+      lastCorrectEl.textContent = displayCorrectValue(correct, groups);
       lastCorrectEl.className = ok ? 'correct' : 'wrong';
 
       setNextQuestion();
