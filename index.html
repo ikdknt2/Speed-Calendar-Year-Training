@@ -428,15 +428,15 @@
       questionEl.textContent = formatNumber(currentNumber);
     }
 
-    function isOtherGroupAnswer(correct, groups) {
+    function isUnselectedGroupValue(value, groups) {
       return currentMode() === 'group'
         && groups.length > 0
         && groups.length < 7
-        && !groups.includes(correct);
+        && !groups.includes(value);
     }
 
-    function displayCorrectValue(correct, groups) {
-      return isOtherGroupAnswer(correct, groups) ? 'X' : correct;
+    function displayAnswerValue(value, groups) {
+      return isUnselectedGroupValue(value, groups) ? 'X' : value;
     }
 
     function isCorrectAnswer(answer, correct, groups) {
@@ -480,8 +480,8 @@
       const ok = isCorrectAnswer(value, correct, groups);
 
       lastQuestionEl.textContent = formatNumber(currentNumber);
-      lastAnswerEl.textContent = value;
-      lastCorrectEl.textContent = displayCorrectValue(correct, groups);
+      lastAnswerEl.textContent = displayAnswerValue(value, groups);
+      lastCorrectEl.textContent = correct;
       lastCorrectEl.className = ok ? 'correct' : 'wrong';
 
       setNextQuestion();
