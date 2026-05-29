@@ -52,6 +52,15 @@
       width: 100%;
     }
 
+    .site-title {
+      color: var(--text);
+      font-size: clamp(18px, 5vw, 30px);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      line-height: 1.35;
+      margin: 0;
+    }
+
     #question {
       font-size: clamp(96px, 28vw, 220px);
       font-weight: 700;
@@ -238,6 +247,8 @@
 </head>
 <body>
   <main>
+    <h1 class="site-title">SpeedCalendar　下二桁値丸暗記トレーナー</h1>
+
     <div id="question" aria-live="polite">00</div>
 
     <div class="result-box" aria-label="前回の結果">
