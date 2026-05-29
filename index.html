@@ -6,16 +6,18 @@
   <title>Speed Calendar Year Training</title>
   <style>
     :root {
-      color-scheme: dark;
-      --bg: #000;
-      --text: #fff;
-      --muted: #9a9a9a;
-      --panel: #111;
-      --border: #6f6f6f;
-      --button: #181818;
-      --button-hover: #292929;
-      --blue: #2f8cff;
-      --red: #ff4c4c;
+      color-scheme: light;
+      --bg: #fff;
+      --text: #000;
+      --muted: #9aa0a6;
+      --panel: #fff;
+      --border: #dadce0;
+      --button: #d7e2f5;
+      --button-hover: #c7d7f0;
+      --button-border: #d7e2f5;
+      --button-text: #163a70;
+      --blue: #0099ff;
+      --red: #d93025;
     }
 
     * {
@@ -85,9 +87,9 @@
     .answer-buttons button {
       aspect-ratio: 1;
       background: var(--button);
-      border: 1px solid #3e3e3e;
+      border: 1px solid var(--button-border);
       border-radius: 12px;
-      color: var(--text);
+      color: var(--button-text);
       cursor: pointer;
       font-size: clamp(20px, 6vw, 34px);
       font-weight: 600;
@@ -97,7 +99,7 @@
     .answer-buttons button:hover,
     .answer-buttons button:focus-visible {
       background: var(--button-hover);
-      border-color: var(--text);
+      border-color: var(--button-text);
       outline: none;
     }
 
@@ -121,7 +123,7 @@
 
     .settings-panel {
       background: var(--panel);
-      border: 1px solid #2d2d2d;
+      border: 1px solid var(--border);
       border-radius: 14px;
       display: none;
       margin-top: 12px;
