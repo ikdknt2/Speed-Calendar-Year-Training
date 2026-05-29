@@ -113,10 +113,17 @@
 
     .settings-header {
       align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 14px;
       display: flex;
       flex-wrap: wrap;
       gap: 8px 14px;
       justify-content: center;
+      padding: 10px 14px;
+    }
+
+    .settings.open .settings-header {
+      border-radius: 14px 14px 0 0;
     }
 
     .settings-toggle {
@@ -134,9 +141,14 @@
       border: 1px solid var(--border);
       border-radius: 14px;
       display: none;
-      margin-top: 12px;
+      margin-top: 0;
       padding: 18px;
       text-align: left;
+    }
+
+    .settings.open .settings-panel {
+      border-radius: 0 0 14px 14px;
+      border-top: 0;
     }
 
     .settings-panel.open {
@@ -244,7 +256,7 @@
       <button type="button" data-answer="6">6</button>
     </div>
 
-    <section class="settings">
+    <section id="settingsSection" class="settings">
       <div class="settings-header">
         <button id="settingsToggle" class="settings-toggle" type="button" aria-expanded="false" aria-controls="settingsPanel">
           ▼ 出題設定
@@ -293,6 +305,7 @@
     const lastCorrectEl = document.getElementById('lastCorrect');
     const settingsToggle = document.getElementById('settingsToggle');
     const settingsPanel = document.getElementById('settingsPanel');
+    const settingsSection = document.getElementById('settingsSection');
     const modeLabel = document.getElementById('modeLabel');
     const modeInputs = document.querySelectorAll('input[name="mode"]');
     const groupInputs = document.querySelectorAll('.group-options input[type="checkbox"]');
@@ -393,6 +406,7 @@
     settingsToggle.addEventListener('click', () => {
       const open = !settingsPanel.classList.contains('open');
       settingsPanel.classList.toggle('open', open);
+      settingsSection.classList.toggle('open', open);
       settingsToggle.setAttribute('aria-expanded', String(open));
       settingsToggle.textContent = open ? '▲ 出題設定' : '▼ 出題設定';
     });
