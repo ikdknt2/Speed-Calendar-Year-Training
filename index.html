@@ -143,6 +143,16 @@
       display: block;
     }
 
+    .setting-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+
+    .setting-box + .setting-box {
+      margin-top: 12px;
+    }
+
     .mode-row {
       align-items: center;
       display: flex;
@@ -165,8 +175,6 @@
       display: grid;
       gap: 10px;
       grid-template-columns: repeat(7, minmax(0, 1fr));
-      margin-top: 10px;
-      padding-left: 28px;
     }
 
     .group-options label {
@@ -245,17 +253,19 @@
       </div>
 
       <div id="settingsPanel" class="settings-panel">
-        <label class="mode-row">
-          <input type="radio" name="mode" value="all" checked>
-          <span>全部モード</span>
-        </label>
+        <div class="setting-box" aria-label="モード選択">
+          <label class="mode-row">
+            <input type="radio" name="mode" value="all" checked>
+            <span>全部モード</span>
+          </label>
 
-        <label class="mode-row">
-          <input type="radio" name="mode" value="group">
-          <span>グループ判定モード</span>
-        </label>
+          <label class="mode-row">
+            <input type="radio" name="mode" value="group">
+            <span>グループ判定モード</span>
+          </label>
+        </div>
 
-        <div class="group-options" aria-label="グループ選択">
+        <div class="setting-box group-options" aria-label="グループ選択">
           <label><input type="checkbox" value="0">0</label>
           <label><input type="checkbox" value="1">1</label>
           <label><input type="checkbox" value="2">2</label>
