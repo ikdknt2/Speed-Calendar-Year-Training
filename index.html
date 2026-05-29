@@ -111,6 +111,14 @@
       width: min(100%, 520px);
     }
 
+    .settings-header {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      justify-content: center;
+    }
+
     .settings-toggle {
       background: transparent;
       border: 0;
@@ -172,7 +180,7 @@
       color: var(--muted);
       font-size: 14px;
       letter-spacing: 0.08em;
-      min-height: 1.4em;
+      line-height: 1.4;
     }
 
     .correct {
@@ -229,9 +237,12 @@
     </div>
 
     <section class="settings">
-      <button id="settingsToggle" class="settings-toggle" type="button" aria-expanded="false" aria-controls="settingsPanel">
-        ▼ 出題設定
-      </button>
+      <div class="settings-header">
+        <button id="settingsToggle" class="settings-toggle" type="button" aria-expanded="false" aria-controls="settingsPanel">
+          ▼ 出題設定
+        </button>
+        <div id="modeLabel">Mode:All</div>
+      </div>
 
       <div id="settingsPanel" class="settings-panel">
         <label class="mode-row">
@@ -255,8 +266,6 @@
         </div>
       </div>
     </section>
-
-    <div id="modeLabel">Mode: All</div>
   </main>
 
   <script>
@@ -342,8 +351,8 @@
     function updateModeLabel() {
       const groups = selectedGroups();
       modeLabel.textContent = currentMode() === 'all'
-        ? 'Mode: All'
-        : `Mode: Group (${groups.length ? groups.join(',') : 'none'})`;
+        ? 'Mode:All'
+        : `Mode:Group(${groups.length ? groups.join(',') : 'none'})`;
     }
 
     function answer(value) {
