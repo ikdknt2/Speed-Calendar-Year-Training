@@ -175,11 +175,26 @@
     }
 
     .mode-row,
+    .range-row,
     .language-row {
       align-items: center;
       display: flex;
       gap: 10px;
       margin: 0 0 14px;
+    }
+
+    .range-row {
+      flex-wrap: wrap;
+      margin-bottom: 0;
+    }
+
+    .range-title {
+      color: var(--muted);
+      flex-basis: 100%;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      line-height: 1.4;
+      margin-bottom: 2px;
     }
 
     .language-row {
@@ -315,6 +330,20 @@
           </div>
         </div>
 
+        <div class="setting-box" aria-label="出題範囲">
+          <div class="range-row">
+            <span id="rangeText" class="range-title">Range</span>
+            <label>
+              <input type="radio" name="range" value="all" checked>
+              <span id="rangeAllText">All</span>
+            </label>
+            <label>
+              <input type="radio" name="range" value="easy">
+              <span id="rangeEasyText">Easy(0-28)</span>
+            </label>
+          </div>
+        </div>
+
         <div class="setting-box">
           <label class="language-row" for="languageSelect">
             <span id="languageLabel">Language:</span>
@@ -342,21 +371,30 @@
         settings: '出題設定',
         allMode: '全部モード',
         groupMode: 'グループ判定モード',
-        language: 'Language:'
+        language: 'Language:',
+        range: '範囲',
+        rangeAll: 'All',
+        rangeEasy: 'Easy(0-28)'
       },
       en: {
         title: 'SpeedCalender Last 2 Digit Memorize trainer',
         settings: 'Settings',
         allMode: 'All Mode',
         groupMode: 'Group Mode',
-        language: 'Language:'
+        language: 'Language:',
+        range: 'Range',
+        rangeAll: 'All',
+        rangeEasy: 'Easy(0-28)'
       },
       zh: {
         title: '速度日历 后两位数练习机',
         settings: '题目设置',
         allMode: '全部模式',
         groupMode: '分组判断模式',
-        language: 'Language:'
+        language: 'Language:',
+        range: '范围',
+        rangeAll: 'All',
+        rangeEasy: 'Easy(0-28)'
       }
     };
 
@@ -373,7 +411,11 @@
     const groupModeText = document.getElementById('groupModeText');
     const languageLabel = document.getElementById('languageLabel');
     const languageSelect = document.getElementById('languageSelect');
+    const rangeText = document.getElementById('rangeText');
+    const rangeAllText = document.getElementById('rangeAllText');
+    const rangeEasyText = document.getElementById('rangeEasyText');
     const modeInputs = document.querySelectorAll('input[name="mode"]');
+    const rangeInputs = document.querySelectorAll('input[name="range"]');
     const groupInputs = document.querySelectorAll('.group-options input[type="checkbox"]');
 
     let currentNumber = 0;
@@ -397,8 +439,17 @@
       return document.querySelector('input[name="mode"]:checked').value;
     }
 
+    function currentRange() {
+      return document.querySelector('input[name="range"]:checked').value;
+    }
+
+    function questionNumbers() {
+      const maxNumber = currentRange() === 'easy' ? 28 : 99;
+      return Array.from({ length: maxNumber + 1 }, (_, n) => n);
+    }
+
     function numbersForValue(value) {
-      return Array.from({ length: 100 }, (_, n) => n).filter(n => yearValue(n) === value);
+      return questionNumbers().filter(n => yearValue(n) === value);
     }
 
     function randomItem(items) {
@@ -406,7 +457,7 @@
     }
 
     function nextAllQuestion() {
-      return Math.floor(Math.random() * 100);
+      return randomItem(questionNumbers());
     }
 
     function nextGroupQuestion(groups) {
@@ -415,7 +466,7 @@
       }
 
       const buckets = groups.map(group => numbersForValue(group));
-      const otherNumbers = Array.from({ length: 100 }, (_, n) => n)
+      const otherNumbers = questionNumbers()
         .filter(n => !groups.includes(yearValue(n)));
       buckets.push(otherNumbers);
 
@@ -464,6 +515,9 @@
       allModeText.textContent = text.allMode;
       groupModeText.textContent = text.groupMode;
       languageLabel.textContent = text.language;
+      rangeText.textContent = text.range;
+      rangeAllText.textContent = text.rangeAll;
+      rangeEasyText.textContent = text.rangeEasy;
       updateSettingsToggle();
     }
 
@@ -515,6 +569,10 @@
       if (currentMode() === 'group') {
         setNextQuestion();
       }
+    }));
+
+    rangeInputs.forEach(input => input.addEventListener('change', () => {
+      setNextQuestion();
     }));
 
     languageSelect.addEventListener('change', () => {
