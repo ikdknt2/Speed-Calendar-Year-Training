@@ -239,6 +239,36 @@
       outline: none;
     }
 
+    .question-pool-debug {
+      border-top: 1px solid var(--border);
+      margin-top: 14px;
+      padding-top: 12px;
+      width: 100%;
+    }
+
+    .question-pool-debug-toggle {
+      background: transparent;
+      border: 0;
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      padding: 4px 0;
+      text-align: left;
+    }
+
+    .question-pool-debug-body {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      padding-top: 8px;
+    }
+
+    .question-pool-debug-summary {
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
     .mode-row:last-child {
       margin-bottom: 0;
     }
@@ -348,6 +378,15 @@
             <label id="advancedFilterLabel" class="setting-title" for="advancedFilter">Filter</label>
             <textarea id="advancedFilter" class="advanced-filter" spellcheck="false">all</textarea>
             <button id="applyFilterButton" class="apply-button" type="button">Apply</button>
+            <div class="question-pool-debug">
+              <button id="questionPoolDebugToggle" class="question-pool-debug-toggle" type="button" aria-expanded="false" aria-controls="questionPoolDebugBody">
+                ▼ Question Pool (Debug)
+              </button>
+              <div id="questionPoolDebugBody" class="question-pool-debug-body" hidden>
+                <div id="questionPoolDebugSummary" class="question-pool-debug-summary">Empty</div>
+                <div id="questionPoolDebugStats">Total: 0<br>Unique: 0</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -383,6 +422,8 @@
         presetEasy: 'Easy (0-27)',
         advancedFilter: 'Filter',
         apply: 'Apply',
+        questionPoolDebug: 'Question Pool (Debug)',
+        empty: 'Empty',
         language: 'Language:'
       },
       en: {
@@ -395,6 +436,8 @@
         presetEasy: 'Easy (0-27)',
         advancedFilter: 'Filter',
         apply: 'Apply',
+        questionPoolDebug: 'Question Pool (Debug)',
+        empty: 'Empty',
         language: 'Language:'
       },
       zh: {
@@ -407,6 +450,8 @@
         presetEasy: 'Easy (0-27)',
         advancedFilter: 'Filter',
         apply: 'Apply',
+        questionPoolDebug: 'Question Pool (Debug)',
+        empty: 'Empty',
         language: 'Language:'
       }
     };
@@ -428,6 +473,10 @@
     const advancedFilterLabel = document.getElementById('advancedFilterLabel');
     const advancedFilter = document.getElementById('advancedFilter');
     const applyFilterButton = document.getElementById('applyFilterButton');
+    const questionPoolDebugToggle = document.getElementById('questionPoolDebugToggle');
+    const questionPoolDebugBody = document.getElementById('questionPoolDebugBody');
+    const questionPoolDebugSummary = document.getElementById('questionPoolDebugSummary');
+    const questionPoolDebugStats = document.getElementById('questionPoolDebugStats');
     const languageLabel = document.getElementById('languageLabel');
     const languageSelect = document.getElementById('languageSelect');
     const presetBox = document.getElementById('presetBox');
@@ -564,9 +613,42 @@
       return currentPreset() === 'cycle1' ? 'cycle1' : 'all';
     }
 
+    function questionPoolCounts(pool) {
+      const counts = new Map();
+      pool.forEach(number => {
+        counts.set(number, (counts.get(number) || 0) + 1);
+      });
+
+      return Array.from(counts.entries()).sort((a, b) => a[0] - b[0]);
+    }
+
+    function formatQuestionPoolSummary(pool) {
+      const counts = questionPoolCounts(pool);
+      if (counts.length === 0) {
+        return translations[currentLanguage].empty;
+      }
+
+      return counts
+        .map(([number, count]) => `${number}×${count}`)
+        .join(' / ');
+    }
+
+    function updateQuestionPoolDebug() {
+      const counts = questionPoolCounts(questionPool);
+      questionPoolDebugSummary.textContent = formatQuestionPoolSummary(questionPool);
+      questionPoolDebugStats.innerHTML = `Total: ${questionPool.length}<br>Unique: ${counts.length}`;
+    }
+
+    function updateQuestionPoolDebugToggle() {
+      const mark = questionPoolDebugBody.hidden ? '▼' : '▲';
+      questionPoolDebugToggle.textContent = `${mark} ${translations[currentLanguage].questionPoolDebug}`;
+      questionPoolDebugToggle.setAttribute('aria-expanded', String(!questionPoolDebugBody.hidden));
+    }
+
     function applyQuestionPool(filterText) {
       questionPool = parseFilter(filterText);
       setNextQuestion();
+      updateQuestionPoolDebug();
     }
 
     function randomItem(items) {
@@ -607,6 +689,8 @@
       applyFilterButton.textContent = text.apply;
       languageLabel.textContent = text.language;
       updateSettingsToggle();
+      updateQuestionPoolDebugToggle();
+      updateQuestionPoolDebug();
     }
 
     function updateModeLabel() {
@@ -669,6 +753,11 @@
       if (currentSettingMode() === 'advanced') {
         applyQuestionPool(advancedFilter.value);
       }
+    });
+
+    questionPoolDebugToggle.addEventListener('click', () => {
+      questionPoolDebugBody.hidden = !questionPoolDebugBody.hidden;
+      updateQuestionPoolDebugToggle();
     });
 
     languageSelect.addEventListener('change', () => {
