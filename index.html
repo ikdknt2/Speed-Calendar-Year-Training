@@ -631,7 +631,7 @@
       }
 
       return counts
-        .map(([number, count]) => `${number}×${count}`)
+        .map(([number, count]) => count === 1 ? String(number) : `${number}×${count}`)
         .join(' / ');
     }
 

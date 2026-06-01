@@ -120,7 +120,7 @@ cases.forEach(([filter, expectedLength, extraAssert]) => {
 });
 
 assert.strictEqual(context.formatQuestionPoolSummary([]), 'Empty');
-assert.strictEqual(context.formatQuestionPoolSummary([1, 1, 1, 2, 3, 3]), '1×3 / 2×1 / 3×2');
+assert.strictEqual(context.formatQuestionPoolSummary([1, 1, 1, 2, 3, 3]), '1×3 / 2 / 3×2');
 context.applyQuestionPool('14*3/27');
-assert.strictEqual(context.document.getElementById('questionPoolDebugSummary').textContent, '14×3 / 27×1');
+assert.strictEqual(context.document.getElementById('questionPoolDebugSummary').textContent, '14×3 / 27');
 assert.strictEqual(context.document.getElementById('questionPoolDebugStats').innerHTML, 'Total: 4<br>Unique: 2');
