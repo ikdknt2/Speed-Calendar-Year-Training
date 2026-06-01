@@ -116,7 +116,8 @@
       transform: scale(0.96);
     }
 
-    .settings {
+    .settings,
+    .language-settings {
       width: min(100%, 520px);
     }
 
@@ -175,7 +176,8 @@
     }
 
     .mode-row,
-    .range-row,
+    .preset-row,
+    .advanced-row,
     .language-row {
       align-items: center;
       display: flex;
@@ -183,12 +185,13 @@
       margin: 0 0 14px;
     }
 
-    .range-row {
+    .preset-row,
+    .advanced-row {
       flex-wrap: wrap;
       margin-bottom: 0;
     }
 
-    .range-title {
+    .setting-title {
       color: var(--muted);
       flex-basis: 100%;
       font-size: 14px;
@@ -202,13 +205,69 @@
       margin-bottom: 0;
     }
 
-    .language-row select {
+    .language-row select,
+    .advanced-filter {
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 8px;
       color: var(--text);
       font: inherit;
       padding: 6px 10px;
+    }
+
+    .advanced-filter {
+      min-height: 150px;
+      resize: vertical;
+      width: 100%;
+    }
+
+    .apply-button {
+      background: var(--button);
+      border: 1px solid var(--button-border);
+      border-radius: 8px;
+      color: var(--button-text);
+      cursor: pointer;
+      font: inherit;
+      font-weight: 600;
+      margin-top: 12px;
+      padding: 8px 16px;
+    }
+
+    .apply-button:hover,
+    .apply-button:focus-visible {
+      background: var(--button-hover);
+      border-color: var(--button-text);
+      outline: none;
+    }
+
+    .question-pool-debug {
+      border-top: 1px solid var(--border);
+      margin-top: 14px;
+      padding-top: 12px;
+      width: 100%;
+    }
+
+    .question-pool-debug-toggle {
+      background: transparent;
+      border: 0;
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      padding: 4px 0;
+      text-align: left;
+    }
+
+    .question-pool-debug-body {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      padding-top: 8px;
+    }
+
+    .question-pool-debug-summary {
+      color: var(--text);
+      margin-bottom: 6px;
     }
 
     .mode-row:last-child {
@@ -220,19 +279,6 @@
       accent-color: var(--text);
       height: 18px;
       width: 18px;
-    }
-
-    .group-options {
-      display: grid;
-      gap: 10px;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-    }
-
-    .group-options label {
-      align-items: center;
-      display: flex;
-      gap: 6px;
-      justify-content: center;
     }
 
     #modeLabel {
@@ -269,9 +315,6 @@
         border-radius: 5px;
       }
 
-      .group-options {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
     }
   </style>
 </head>
@@ -306,55 +349,60 @@
       </div>
 
       <div id="settingsPanel" class="settings-panel">
-        <div class="setting-box" aria-label="全部モード">
+        <div class="setting-box" aria-label="設定モード">
           <label class="mode-row">
-            <input type="radio" name="mode" value="all" checked>
-            <span id="allModeText">全部モード</span>
+            <input type="radio" name="settingMode" value="preset" checked>
+            <span id="presetModeText">Preset</span>
+          </label>
+          <label class="mode-row">
+            <input type="radio" name="settingMode" value="advanced">
+            <span id="advancedModeText">Advanced</span>
           </label>
         </div>
 
-        <div class="setting-box" aria-label="グループ判定モード">
-          <label class="mode-row">
-            <input type="radio" name="mode" value="group">
-            <span id="groupModeText">グループ判定モード</span>
-          </label>
-
-          <div class="group-options" aria-label="グループ選択">
-            <label><input type="checkbox" value="0">0</label>
-            <label><input type="checkbox" value="1">1</label>
-            <label><input type="checkbox" value="2">2</label>
-            <label><input type="checkbox" value="3">3</label>
-            <label><input type="checkbox" value="4">4</label>
-            <label><input type="checkbox" value="5">5</label>
-            <label><input type="checkbox" value="6">6</label>
-          </div>
-        </div>
-
-        <div class="setting-box" aria-label="出題範囲">
-          <div class="range-row">
-            <span id="rangeText" class="range-title">Range</span>
+        <div id="presetBox" class="setting-box" aria-label="プリセット">
+          <div class="preset-row">
+            <span id="presetText" class="setting-title">Preset</span>
             <label>
-              <input type="radio" name="range" value="all" checked>
-              <span id="rangeAllText">All</span>
+              <input type="radio" name="preset" value="all" checked>
+              <span id="presetAllText">All (00-99)</span>
             </label>
             <label>
-              <input type="radio" name="range" value="easy">
-              <span id="rangeEasyText">Easy(0-27)</span>
+              <input type="radio" name="preset" value="cycle1">
+              <span id="presetEasyText">Easy (0-27)</span>
             </label>
           </div>
         </div>
 
-        <div class="setting-box">
-          <label class="language-row" for="languageSelect">
-            <span id="languageLabel">Language:</span>
-            <select id="languageSelect">
-              <option value="ja">日本語</option>
-              <option value="en">English</option>
-              <option value="zh">中文</option>
-            </select>
-          </label>
+        <div id="advancedBox" class="setting-box" aria-label="詳細設定" hidden>
+          <div class="advanced-row">
+            <label id="advancedFilterLabel" class="setting-title" for="advancedFilter">Filter</label>
+            <textarea id="advancedFilter" class="advanced-filter" spellcheck="false">all</textarea>
+            <button id="applyFilterButton" class="apply-button" type="button">Apply</button>
+            <div class="question-pool-debug">
+              <button id="questionPoolDebugToggle" class="question-pool-debug-toggle" type="button" aria-expanded="false" aria-controls="questionPoolDebugBody">
+                ▼ Question Pool (Debug)
+              </button>
+              <div id="questionPoolDebugBody" class="question-pool-debug-body" hidden>
+                <div id="questionPoolDebugSummary" class="question-pool-debug-summary">Empty</div>
+                <div id="questionPoolDebugStats">Total: 0<br>Unique: 0</div>
+              </div>
+            </div>
+          </div>
         </div>
+
       </div>
+    </section>
+
+    <section class="language-settings setting-box" aria-label="言語設定">
+      <label class="language-row" for="languageSelect">
+        <span id="languageLabel">Language:</span>
+        <select id="languageSelect">
+          <option value="ja">日本語</option>
+          <option value="en">English</option>
+          <option value="zh">中文</option>
+        </select>
+      </label>
     </section>
   </main>
 
@@ -369,32 +417,44 @@
       ja: {
         title: 'SpeedCalendar　下二桁値丸暗記トレーナー',
         settings: '出題設定',
-        allMode: '全部モード',
-        groupMode: 'グループ判定モード',
-        language: 'Language:',
-        range: '範囲',
-        rangeAll: 'All',
-        rangeEasy: 'Easy(0-27)'
+        presetMode: 'Preset',
+        advancedMode: 'Advanced',
+        preset: 'Preset',
+        presetAll: 'All (00-99)',
+        presetEasy: 'Easy (0-27)',
+        advancedFilter: 'Filter',
+        apply: 'Apply',
+        questionPoolDebug: 'Question Pool (Debug)',
+        empty: 'Empty',
+        language: 'Language:'
       },
       en: {
         title: 'SpeedCalender Last 2 Digit Memorize trainer',
         settings: 'Settings',
-        allMode: 'All Mode',
-        groupMode: 'Group Mode',
-        language: 'Language:',
-        range: 'Range',
-        rangeAll: 'All',
-        rangeEasy: 'Easy(0-27)'
+        presetMode: 'Preset',
+        advancedMode: 'Advanced',
+        preset: 'Preset',
+        presetAll: 'All (00-99)',
+        presetEasy: 'Easy (0-27)',
+        advancedFilter: 'Filter',
+        apply: 'Apply',
+        questionPoolDebug: 'Question Pool (Debug)',
+        empty: 'Empty',
+        language: 'Language:'
       },
       zh: {
         title: '速度日历 后两位数练习机',
         settings: '题目设置',
-        allMode: '全部模式',
-        groupMode: '分组判断模式',
-        language: 'Language:',
-        range: '范围',
-        rangeAll: 'All',
-        rangeEasy: 'Easy(0-27)'
+        presetMode: 'Preset',
+        advancedMode: 'Advanced',
+        preset: 'Preset',
+        presetAll: 'All (00-99)',
+        presetEasy: 'Easy (0-27)',
+        advancedFilter: 'Filter',
+        apply: 'Apply',
+        questionPoolDebug: 'Question Pool (Debug)',
+        empty: 'Empty',
+        language: 'Language:'
       }
     };
 
@@ -407,19 +467,38 @@
     const settingsPanel = document.getElementById('settingsPanel');
     const settingsSection = document.getElementById('settingsSection');
     const modeLabel = document.getElementById('modeLabel');
-    const allModeText = document.getElementById('allModeText');
-    const groupModeText = document.getElementById('groupModeText');
+    const presetModeText = document.getElementById('presetModeText');
+    const advancedModeText = document.getElementById('advancedModeText');
+    const presetText = document.getElementById('presetText');
+    const presetAllText = document.getElementById('presetAllText');
+    const presetEasyText = document.getElementById('presetEasyText');
+    const advancedFilterLabel = document.getElementById('advancedFilterLabel');
+    const advancedFilter = document.getElementById('advancedFilter');
+    const applyFilterButton = document.getElementById('applyFilterButton');
+    const questionPoolDebugToggle = document.getElementById('questionPoolDebugToggle');
+    const questionPoolDebugBody = document.getElementById('questionPoolDebugBody');
+    const questionPoolDebugSummary = document.getElementById('questionPoolDebugSummary');
+    const questionPoolDebugStats = document.getElementById('questionPoolDebugStats');
     const languageLabel = document.getElementById('languageLabel');
     const languageSelect = document.getElementById('languageSelect');
-    const rangeText = document.getElementById('rangeText');
-    const rangeAllText = document.getElementById('rangeAllText');
-    const rangeEasyText = document.getElementById('rangeEasyText');
-    const modeInputs = document.querySelectorAll('input[name="mode"]');
-    const rangeInputs = document.querySelectorAll('input[name="range"]');
-    const groupInputs = document.querySelectorAll('.group-options input[type="checkbox"]');
+    const presetBox = document.getElementById('presetBox');
+    const advancedBox = document.getElementById('advancedBox');
+    const settingModeInputs = document.querySelectorAll('input[name="settingMode"]');
+    const presetInputs = document.querySelectorAll('input[name="preset"]');
+
+    const allNumbers = Array.from({ length: 100 }, (_, n) => n);
+    const shortcuts = {
+      all: () => rangeNumbers(0, 99),
+      cycle1: () => rangeNumbers(0, 27),
+      cycle2: () => rangeNumbers(28, 55),
+      cycle3: () => rangeNumbers(56, 83),
+      cycle4: () => rangeNumbers(84, 99),
+      doubles: () => [0, 11, 22, 33, 44, 55, 66, 77, 88, 99]
+    };
 
     let currentNumber = 0;
     let currentLanguage = 'ja';
+    let questionPool = shortcuts.all();
 
     function yearValue(n) {
       return values[n % 28];
@@ -429,77 +508,162 @@
       return String(n).padStart(2, '0');
     }
 
-    function selectedGroups() {
-      return Array.from(groupInputs)
-        .filter(input => input.checked)
-        .map(input => Number(input.value));
-    }
-
-    function currentMode() {
-      return document.querySelector('input[name="mode"]:checked').value;
-    }
-
-    function currentRange() {
-      return document.querySelector('input[name="range"]:checked').value;
-    }
-
-    function questionNumbers() {
-      const maxNumber = currentRange() === 'easy' ? 27 : 99;
-      return Array.from({ length: maxNumber + 1 }, (_, n) => n);
+    function rangeNumbers(start, end) {
+      const min = Math.max(0, Math.min(start, end));
+      const max = Math.min(99, Math.max(start, end));
+      return Array.from({ length: max - min + 1 }, (_, index) => min + index);
     }
 
     function numbersForValue(value) {
-      return questionNumbers().filter(n => yearValue(n) === value);
+      return allNumbers.filter(n => yearValue(n) === value);
+    }
+
+    function currentSettingMode() {
+      return document.querySelector('input[name="settingMode"]:checked').value;
+    }
+
+    function currentPreset() {
+      return document.querySelector('input[name="preset"]:checked').value;
+    }
+
+    function splitCommands(filterText) {
+      return filterText
+        .split(/[\n/]+/)
+        .map(command => command.trim())
+        .filter(Boolean);
+    }
+
+    function expandCommand(baseCommand) {
+      if (shortcuts[baseCommand]) {
+        return shortcuts[baseCommand]();
+      }
+
+      const groupMatch = baseCommand.match(/^group([0-6])$/);
+      if (groupMatch) {
+        return numbersForValue(Number(groupMatch[1]));
+      }
+
+      const rangeMatch = baseCommand.match(/^(\d{1,2})-(\d{1,2})$/);
+      if (rangeMatch) {
+        return rangeNumbers(Number(rangeMatch[1]), Number(rangeMatch[2]));
+      }
+
+      const numberMatch = baseCommand.match(/^\d{1,2}$/);
+      if (numberMatch) {
+        const number = Number(baseCommand);
+        return number <= 99 ? [number] : [];
+      }
+
+      return [];
+    }
+
+    function removeFromPool(pool, numbers, multiplier) {
+      // Multiplier repeats the whole exclusion command, so !group1*3
+      // removes three group1 sets instead of every group1 entry.
+      const removeCounts = new Map();
+
+      for (let i = 0; i < multiplier; i += 1) {
+        numbers.forEach(number => {
+          removeCounts.set(number, (removeCounts.get(number) || 0) + 1);
+        });
+      }
+
+      return pool.filter(number => {
+        const remaining = removeCounts.get(number) || 0;
+        if (remaining === 0) {
+          return true;
+        }
+
+        removeCounts.set(number, remaining - 1);
+        return false;
+      });
+    }
+
+    function parseFilter(filterText) {
+      let pool = [];
+
+      splitCommands(filterText).forEach(command => {
+        const isExclude = command.startsWith('!');
+        const commandBody = isExclude ? command.slice(1) : command;
+        const multiplierMatch = commandBody.match(/^(.*)\*(\d+)$/);
+        const baseCommand = multiplierMatch ? multiplierMatch[1].trim() : commandBody.trim();
+        const multiplier = multiplierMatch ? Number(multiplierMatch[2]) : 1;
+
+        if (!baseCommand || !Number.isInteger(multiplier) || multiplier < 1) {
+          return;
+        }
+
+        const numbers = expandCommand(baseCommand);
+        if (numbers.length === 0) {
+          return;
+        }
+
+        if (isExclude) {
+          pool = removeFromPool(pool, numbers, multiplier);
+          return;
+        }
+
+        for (let i = 0; i < multiplier; i += 1) {
+          pool.push(...numbers);
+        }
+      });
+
+      return pool.length > 0 ? pool : shortcuts.all();
+    }
+
+    function presetFilterCommand() {
+      return currentPreset() === 'cycle1' ? 'cycle1' : 'all';
+    }
+
+    function questionPoolCounts(pool) {
+      const counts = new Map();
+      pool.forEach(number => {
+        counts.set(number, (counts.get(number) || 0) + 1);
+      });
+
+      return Array.from(counts.entries()).sort((a, b) => a[0] - b[0]);
+    }
+
+    function formatQuestionPoolSummary(pool) {
+      const counts = questionPoolCounts(pool);
+      if (counts.length === 0) {
+        return translations[currentLanguage].empty;
+      }
+
+      return counts
+        .map(([number, count]) => count === 1 ? String(number) : `${number}×${count}`)
+        .join(' / ');
+    }
+
+    function updateQuestionPoolDebug() {
+      const counts = questionPoolCounts(questionPool);
+      questionPoolDebugSummary.textContent = formatQuestionPoolSummary(questionPool);
+      questionPoolDebugStats.innerHTML = `Total: ${questionPool.length}<br>Unique: ${counts.length}`;
+    }
+
+    function updateQuestionPoolDebugToggle() {
+      const mark = questionPoolDebugBody.hidden ? '▼' : '▲';
+      questionPoolDebugToggle.textContent = `${mark} ${translations[currentLanguage].questionPoolDebug}`;
+      questionPoolDebugToggle.setAttribute('aria-expanded', String(!questionPoolDebugBody.hidden));
+    }
+
+    function applyQuestionPool(filterText) {
+      questionPool = parseFilter(filterText);
+      setNextQuestion();
+      updateQuestionPoolDebug();
     }
 
     function randomItem(items) {
       return items[Math.floor(Math.random() * items.length)];
     }
 
-    function nextAllQuestion() {
-      return randomItem(questionNumbers());
-    }
-
-    function nextGroupQuestion(groups) {
-      if (groups.length === 0 || groups.length === 7) {
-        return nextAllQuestion();
-      }
-
-      const buckets = groups.map(group => numbersForValue(group));
-      const otherNumbers = questionNumbers()
-        .filter(n => !groups.includes(yearValue(n)));
-      buckets.push(otherNumbers);
-
-      return randomItem(randomItem(buckets));
-    }
-
     function setNextQuestion() {
-      const groups = selectedGroups();
-      currentNumber = currentMode() === 'group' ? nextGroupQuestion(groups) : nextAllQuestion();
+      currentNumber = randomItem(questionPool);
       questionEl.textContent = formatNumber(currentNumber);
     }
 
-    function isUnselectedGroupValue(value, groups) {
-      return currentMode() === 'group'
-        && groups.length > 0
-        && groups.length < 7
-        && !groups.includes(value);
-    }
-
-    function displayAnswerValue(value, groups) {
-      return isUnselectedGroupValue(value, groups) ? 'X' : value;
-    }
-
-    function isCorrectAnswer(answer, correct, groups) {
-      if (currentMode() !== 'group' || groups.length === 0 || groups.length === 7) {
-        return answer === correct;
-      }
-
-      if (groups.includes(correct)) {
-        return answer === correct;
-      }
-
-      return !groups.includes(answer);
+    function isCorrectAnswer(answer, correct) {
+      return answer === correct;
     }
 
     function updateSettingsToggle() {
@@ -507,34 +671,42 @@
       settingsToggle.textContent = `${mark} ${translations[currentLanguage].settings}`;
     }
 
+    function updateSettingPanels() {
+      const isPreset = currentSettingMode() === 'preset';
+      presetBox.hidden = !isPreset;
+      advancedBox.hidden = isPreset;
+    }
+
     function updateLanguage() {
       const text = translations[currentLanguage];
       document.documentElement.lang = currentLanguage;
       document.title = text.title;
       siteTitle.textContent = text.title;
-      allModeText.textContent = text.allMode;
-      groupModeText.textContent = text.groupMode;
+      presetModeText.textContent = text.presetMode;
+      advancedModeText.textContent = text.advancedMode;
+      presetText.textContent = text.preset;
+      presetAllText.textContent = text.presetAll;
+      presetEasyText.textContent = text.presetEasy;
+      advancedFilterLabel.textContent = text.advancedFilter;
+      applyFilterButton.textContent = text.apply;
       languageLabel.textContent = text.language;
-      rangeText.textContent = text.range;
-      rangeAllText.textContent = text.rangeAll;
-      rangeEasyText.textContent = text.rangeEasy;
       updateSettingsToggle();
+      updateQuestionPoolDebugToggle();
+      updateQuestionPoolDebug();
     }
 
     function updateModeLabel() {
-      const groups = selectedGroups();
-      modeLabel.textContent = currentMode() === 'all'
-        ? 'Mode:All'
-        : `Mode:Group(${groups.length ? groups.join(',') : 'none'})`;
+      modeLabel.textContent = currentSettingMode() === 'preset'
+        ? `Mode:Preset(${currentPreset() === 'cycle1' ? 'Easy' : 'All'})`
+        : 'Mode:Advanced';
     }
 
     function answer(value) {
       const correct = yearValue(currentNumber);
-      const groups = selectedGroups();
-      const ok = isCorrectAnswer(value, correct, groups);
+      const ok = isCorrectAnswer(value, correct);
 
       lastQuestionEl.textContent = formatNumber(currentNumber);
-      lastAnswerEl.textContent = displayAnswerValue(value, groups);
+      lastAnswerEl.textContent = value;
       lastCorrectEl.textContent = correct;
       lastCorrectEl.className = ok ? 'correct' : 'wrong';
 
@@ -546,6 +718,11 @@
     });
 
     document.addEventListener('keydown', event => {
+      const targetTag = event.target.tagName;
+      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(targetTag)) {
+        return;
+      }
+
       if (/^[0-6]$/.test(event.key)) {
         answer(Number(event.key));
       }
@@ -559,21 +736,31 @@
       updateSettingsToggle();
     });
 
-    modeInputs.forEach(input => input.addEventListener('change', () => {
+    settingModeInputs.forEach(input => input.addEventListener('change', () => {
+      updateSettingPanels();
       updateModeLabel();
-      setNextQuestion();
-    }));
-
-    groupInputs.forEach(input => input.addEventListener('change', () => {
-      updateModeLabel();
-      if (currentMode() === 'group') {
-        setNextQuestion();
+      if (currentSettingMode() === 'preset') {
+        applyQuestionPool(presetFilterCommand());
       }
     }));
 
-    rangeInputs.forEach(input => input.addEventListener('change', () => {
-      setNextQuestion();
+    presetInputs.forEach(input => input.addEventListener('change', () => {
+      updateModeLabel();
+      if (currentSettingMode() === 'preset') {
+        applyQuestionPool(presetFilterCommand());
+      }
     }));
+
+    applyFilterButton.addEventListener('click', () => {
+      if (currentSettingMode() === 'advanced') {
+        applyQuestionPool(advancedFilter.value);
+      }
+    });
+
+    questionPoolDebugToggle.addEventListener('click', () => {
+      questionPoolDebugBody.hidden = !questionPoolDebugBody.hidden;
+      updateQuestionPoolDebugToggle();
+    });
 
     languageSelect.addEventListener('change', () => {
       currentLanguage = languageSelect.value;
@@ -581,8 +768,9 @@
     });
 
     updateLanguage();
+    updateSettingPanels();
     updateModeLabel();
-    setNextQuestion();
+    applyQuestionPool(presetFilterCommand());
   </script>
 </body>
 </html>
