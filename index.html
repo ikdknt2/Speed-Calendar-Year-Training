@@ -339,7 +339,7 @@
             </label>
             <label>
               <input type="radio" name="range" value="easy">
-              <span id="rangeEasyText">Easy(0-28)</span>
+              <span id="rangeEasyText">Easy(0-27)</span>
             </label>
           </div>
         </div>
@@ -374,7 +374,7 @@
         language: 'Language:',
         range: '範囲',
         rangeAll: 'All',
-        rangeEasy: 'Easy(0-28)'
+        rangeEasy: 'Easy(0-27)'
       },
       en: {
         title: 'SpeedCalender Last 2 Digit Memorize trainer',
@@ -384,7 +384,7 @@
         language: 'Language:',
         range: 'Range',
         rangeAll: 'All',
-        rangeEasy: 'Easy(0-28)'
+        rangeEasy: 'Easy(0-27)'
       },
       zh: {
         title: '速度日历 后两位数练习机',
@@ -394,7 +394,7 @@
         language: 'Language:',
         range: '范围',
         rangeAll: 'All',
-        rangeEasy: 'Easy(0-28)'
+        rangeEasy: 'Easy(0-27)'
       }
     };
 
@@ -444,7 +444,7 @@
     }
 
     function questionNumbers() {
-      const maxNumber = currentRange() === 'easy' ? 28 : 99;
+      const maxNumber = currentRange() === 'easy' ? 27 : 99;
       return Array.from({ length: maxNumber + 1 }, (_, n) => n);
     }
 
