@@ -507,6 +507,8 @@
     }
 
     function removeFromPool(pool, numbers, multiplier) {
+      // Multiplier repeats the whole exclusion command, so !group1*3
+      // removes three group1 sets instead of every group1 entry.
       const removeCounts = new Map();
 
       for (let i = 0; i < multiplier; i += 1) {
