@@ -506,6 +506,26 @@
       return [];
     }
 
+    function removeFromPool(pool, numbers, multiplier) {
+      const removeCounts = new Map();
+
+      for (let i = 0; i < multiplier; i += 1) {
+        numbers.forEach(number => {
+          removeCounts.set(number, (removeCounts.get(number) || 0) + 1);
+        });
+      }
+
+      return pool.filter(number => {
+        const remaining = removeCounts.get(number) || 0;
+        if (remaining === 0) {
+          return true;
+        }
+
+        removeCounts.set(number, remaining - 1);
+        return false;
+      });
+    }
+
     function parseFilter(filterText) {
       let pool = [];
 
@@ -526,8 +546,7 @@
         }
 
         if (isExclude) {
-          const removeSet = new Set(numbers);
-          pool = pool.filter(n => !removeSet.has(n));
+          pool = removeFromPool(pool, numbers, multiplier);
           return;
         }
 
