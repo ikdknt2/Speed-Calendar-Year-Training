@@ -316,6 +316,618 @@
       }
     }
 
+    /* --- ヘルプ用モーダルCSS（干渉しないよう調整済） --- */
+    .bottom-container {
+      display: flex;
+      justify-content: center;
+      width: min(100%, 520px);
+      margin-top: 4px;
+    }
+    .help-trigger-btn {
+      background: #4a5568;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 15px;
+      width: 100%;
+      transition: background-color 80ms ease;
+    }
+    .help-trigger-btn:hover {
+      background: #2d3748;
+    }
+    .sc-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .sc-modal-content {
+      background-color: #fff;
+      color: #000;
+      margin: 40px auto;
+      padding: 30px;
+      border: 1px solid #888;
+      width: 90%;
+      max-width: 600px;
+      border-radius: 8px;
+      position: relative;
+      text-align: left;
+    }
+    .sc-modal-close {
+      color: #aaa;
+      position: absolute;
+      top: 10px; right: 15px;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .sc-help-container {
+      white-space: pre-wrap;
+      font-family: monospace;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1 id="siteTitle" class="site-title">SpeedCalendar　下二桁値丸暗記トレーナー</h1>
+
+    <div id="question" aria-live="polite">00</div>
+
+    <div class="result-box" aria-label="前回の結果">
+      <span id="lastQuestion"></span>
+      <span id="lastAnswer"></span>
+      <span id="lastCorrect"></span>
+    </div>
+
+    <div class="answer-buttons" aria-label="回答ボタン">
+      <button type="button" data-answer="0">0</button>
+      <button type="button" data-answer="1">1</button>
+      <button type="button" data-answer="2">2</button>
+      <button type="button" data-answer="3">3</button>
+      <button type="button" data-answer="4">4</button>
+      <button type="button" data-answer="5">5</button>
+      <button type="button" data-answer="6">6</button>
+    </div>
+
+    <section id="settingsSection" class="settings">
+      <div class="settings-header">
+        <button id="settingsToggle" class="settings-toggle" type="button" aria-expanded="false" aria-controls="settingsPanel">
+          ▼ 出題設定
+        </button>
+        <div id="modeLabel">Mode:All</div>
+      </div>
+
+      <div id="settingsPanel" class="settings-panel">
+        <div class="setting-box" aria-label="設定モード">
+          <label class="mode-row">
+            <input type="radio" name="settingMode" value="preset" checked>
+            <span id="presetModeText">Preset</span>
+          </label>
+          <label class="mode-row">
+            <input type="radio" name="settingMode" value="advanced">
+            <span id="advancedModeText">Advanced</span>
+          </label>
+        </div>
+
+        <div id="presetBox" class="setting-box" aria-label="プリセット">
+          <div class="preset-row">
+            <span id="presetText" class="setting-title">Preset</span>
+            <label>
+              <input type="radio" name="preset" value="all" checked>
+              <span id="presetAllText">All (00-99)</span>
+            </label>
+            <label>
+              <input type="radio" name="preset" value="cycle1">
+              <span id="presetEasyText">Easy (0-27)</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="advancedBox" class="setting-box" aria-label="詳細設定" hidden>
+          <div class="advanced-row">
+            <label id="advancedFilterLabel" class="setting-title" for="advancedFilter">Filter</label>
+            <textarea id="advancedFilter" class="advanced-filter" spellcheck="false">all</textarea>
+            <button id="applyFilterButton" class="apply-button" type="button">Apply</button>
+            <div class="question-pool-debug">
+              <button id="questionPoolDebugToggle" class="question-pool-debug-toggle" type="button" aria-expanded="false" aria-controls="questionPoolDebugBody">
+                ▼ Question Pool (Debug)
+              </button>
+              <div id="questionPoolDebugBody" class="question-pool-debug-body" hidden>
+                <div id="questionPoolDebugSummary" class="question-pool-debug-summary">Empty</div>
+                <div id="questionPoolDebugStats">Total: 0<br>Unique: 0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="language-settings setting-box" aria-label="言語設定">
+      <label class="language-row" for="languageSelect">
+        <span id="languageLabel">Language:</span>
+        <select id="languageSelect">
+          <option value="ja">日本語</option>
+          <option value="en">English</option>
+          <option value="zh">中文</option>
+        </select>
+      </label>
+    </section>
+
+    <div class="bottom-container">
+      <button id="openHelpBtn" class="help-trigger-btn">❓ ヘルプを見る</button>
+    </div>
+
+    <div id="helpModal" class="sc-modal">
+      <div class="sc-modal-content">
+        <span id="closeHelpBtn" class="sc-modal-close">&times;</span>
+        <div id="helpContent" class="sc-help-container">【ヘルプ・使い方】
+・表示される下2桁の数字に対応する数（0〜6）を素早く答えてください。
+・キーボードの「0」〜「6」キーでの回答にも対応しています。
+
+【出題設定について】
+・Preset: 全範囲（00-99）またはイージー（0-27）を選択できます。
+・Advanced: フィルター欄に「cycle1」や特定の数字を入力してカスタマイズできます。</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const values = [
+      0,1,2,3,5,6,0,1,3,4,
+      5,6,1,2,3,4,6,0,1,2,
+      4,5,6,0,2,3,4,5
+    ];
+
+    const translations = {
+      ja: {
+        title: 'SpeedCalendar　下二桁値丸暗記トレーナー',
+        settings: '出題設定',
+        presetMode: 'Preset',
+        advancedMode: 'Advanced',
+        preset: 'Preset',
+        presetAll: 'All (00-99)',
+        presetEasy: 'Easy (0-27)',
+        advancedFilter: 'Filter',
+        apply: 'Apply',
+        questionPoolDebug: 'Question Pool (Debug)',
+        empty: 'Empty',
+        language: 'Language:'
+      },
+      en: {
+        title: 'SpeedCalender Last 2 Digit Memorize trainer',
+        settings: 'Settings',
+        presetMode: 'Preset',
+        advancedMode: 'Advanced',
+        preset: 'Preset',
+        presetAll: 'All (00-99)',
+        presetEasy: 'Easy (0-27)',
+        advancedFilter: 'Filter',
+        apply: 'Apply',
+        questionPoolDebug: 'Question Pool (Debug)',
+        empty: 'Empty',
+        language: 'Language:'
+      },
+      zh: {
+        title: '速度日历 后两位数练习机',
+        settings: '题目设置',
+        presetMode: 'Preset',
+        advancedMode: 'Advanced',
+        preset: 'Preset',
+        presetAll: 'All (00-99)',
+        presetEasy: 'Easy (0-27)',
+        advancedFilter: 'Filter',
+        apply: 'Apply',
+        questionPoolDebug: 'Question Pool (Debug)',
+        empty: 'Empty',
+        language: 'Language:'
+      }
+    };
+
+    const siteTitle = document.getElementById('siteTitle');
+    const questionEl = document.getElementById('question');
+    const lastQuestionEl = document.getElementById('lastQuestion');
+    const lastAnswerEl = document.getElementById('lastAnswer');
+    const lastCorrectEl = document.getElementById('lastCorrect');
+    const settingsToggle = document.getElementById('settingsToggle');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const settingsSection = document.getElementById('settingsSection');
+    const modeLabel = document.getElementById('modeLabel');
+    const presetModeText = document.getElementById('presetModeText');
+    const advancedModeText = document.getElementById('advancedModeText');
+    const presetText = document.getElementById('presetText');
+    const presetAllText = document.getElementById('presetAllText');
+    const presetEasyText = document.getElementById('presetEasyText');
+    const advancedFilterLabel = document.getElementById('advancedFilterLabel');
+    const advancedFilter = document.getElementById('advancedFilter');
+    const applyFilterButton = document.getElementById('applyFilterButton');
+    const questionPoolDebugToggle = document.getElementById('questionPoolDebugToggle');
+    const questionPoolDebugBody = document.getElementById('questionPoolDebugBody');
+    const questionPoolDebugSummary = document.getElementById('questionPoolDebugSummary');
+    const questionPoolDebugStats = document.getElementById('questionPoolDebugStats');
+    const languageLabel = document.getElementById('languageLabel');
+    const languageSelect = document.getElementById('languageSelect');
+    const presetBox = document.getElementById('presetBox');
+    const advancedBox = document.getElementById('advancedBox');
+    const settingModeInputs = document.querySelectorAll('input[name="settingMode"]');
+    const presetInputs = document.querySelectorAll('input[name="preset"]');
+
+    const allNumbers = Array.from({ length: 100 }, (_, n) => n);
+    const shortcuts = {
+      all: () => rangeNumbers(0, 99),
+      cycle1: () => rangeNumbers(0, 27),
+      cycle2: () => rangeNumbers(28, 55),
+      cycle3: () => rangeNumbers(56, 83),
+      cycle4: () => rangeNumbers(84, 99),
+      doubles: () => [0, 11, 22, 33, 44, 55, 66, 77, 88, 99]
+    };
+
+    let currentNumber = 0;
+    let currentLanguage = 'ja';
+    let questionPool = shortcuts.all();
+
+    function yearValue(n) {
+      return values[n % 28];
+    }
+
+    function formatNumber(n) {
+      return String(n).padStart(2, '0');
+    }
+
+    function rangeNumbers(start, end) {
+      const min = Math.max(0, Math.min(start, end));
+      const max = Math.min(99, Math.max(start, end));
+      return Array.from({ length: max - min + 1 }, (_, index) => min + index);
+    }
+
+    function numbersForValue(value) {
+      return allNumbers.filter(n => yearValue(n) === value);
+    }
+
+    function currentSettingMode() {
+      return document.querySelector('input[name="settingMode"]:checked').value;
+    }
+
+    function currentPreset() {
+      return document.querySelector('input[name="preset"]:checked').value;
+    }
+
+    function splitCommands(filterText) {
+      return filterText
+        .split(/[\n/]+/)
+        .map(command => command.trim())
+        .filter(Boolean);
+    }
+
+    function expandCommand(baseCommand) {
+      if (shortcuts[baseCommand]) {
+        return shortcuts[baseCommand]();
+      }
+
+      const groupMatch = baseCommand.match(/^group([0-6])$/);
+      if (groupMatch) {
+        return numbersForValue(Number(groupMatch[1]));
+      }
+
+      const rangeMatch = baseCommand.match(/^(\d{1,2})-(\d{1,2})$/);
+      if (rangeMatch) {
+        return rangeNumbers(Number(rangeMatch[1]), Number(rangeMatch[2]));
+      }
+
+      const numberMatch = baseCommand.match(/^\d{1,2}$/);
+      if (numberMatch) {
+        const number = Number(baseCommand);
+        return number <= 99 ? [number] : [];
+      }
+
+      return [];
+    }
+
+    function removeFromPool(pool, numbers, multiplier) {
+      // Multiplier repeats the whole exclusion command, so !group1*3
+      // removes three group1 sets instead of every group1 entry.
+      const removeCounts = new Map();
+
+      for (let i = 0; i < multiplier; i += 1) {
+        numbers.forEach(number => {
+          removeCounts.set(number, (removeCounts.get(number) || 0) + 1);
+        });
+      }
+
+      return pool.filter(number => {
+        const remaining = removeCounts.get(number) || 0;
+        if (remaining === 0) {
+          return true;
+        }
+
+        removeCounts.set(number, remaining - 1);
+        return false;
+      });
+    }
+
+    function parseFilter(filterText) {
+      let pool = [];
+
+      splitCommands(filterText).forEach(command => {
+        const isExclude = command.startsWith('!');
+        const commandBody = isExclude ? command.slice(1) : command;
+        const multiplierMatch = commandBody.match(/^(.*)\*(\d+)$/);
+        const baseCommand = multiplierMatch ? multiplierMatch[1].trim() : commandBody.trim();
+        const multiplier = multiplierMatch ? Number(multiplierMatch[2]) : 1;
+
+        if (!baseCommand || !Number.isInteger(multiplier) || multiplier < 1) {
+          return;
+        }
+
+        const numbers = expandCommand(baseCommand);
+        if (numbers.length === 0) {
+          return;
+        }
+
+        if (isExclude) {
+          pool = removeFromPool(pool, numbers, multiplier);
+          return;
+        }
+
+        for (let i = 0; i < multiplier; i += 1) {
+          pool.push(...numbers);
+        }
+      });
+
+      return pool.length > 0 ? pool : shortcuts.all();
+    }
+
+    function presetFilterCommand() {
+      return currentPreset() === 'cycle1' ? 'cycle1' : 'all';
+    }
+
+    function questionPoolCounts(pool) {
+      const counts = new Map();
+      pool.forEach(number => {
+        counts.set(number, (counts.get(number) || 0) + 1);
+      });
+
+      return Array.from(counts.entries()).sort((a, b) => a[0] - b[0]);
+    }
+
+    function formatQuestionPoolSummary(pool) {
+      const counts = questionPoolCounts(pool);
+      if (counts.length === 0) {
+        return translations[currentLanguage].empty;
+      }
+
+      return counts
+        .map(([number, count]) => count === 1 ? String(number) : `${number}×${count}`)
+        .join(' / ');
+    }
+
+    function updateQuestionPoolDebug() {
+      const counts = questionPoolCounts(questionPool);
+      questionPoolDebugSummary.textContent = formatQuestionPoolSummary(questionPool);
+      questionPoolDebugStats.innerHTML = `Total: ${questionPool.length}<br>Unique: ${counts.length}`;
+    }
+
+    function updateQuestionPoolDebugToggle() {
+      const mark = questionPoolDebugBody.hidden ? '▼' : '▲';
+      questionPoolDebugToggle.textContent = `${mark} ${translations[currentLangua    }
+
+    .answer-buttons button:hover,
+    .answer-buttons button:focus-visible {
+      background: var(--button-hover);
+      border-color: var(--button-text);
+      outline: none;
+    }
+
+    .answer-buttons button:active {
+      transform: scale(0.96);
+    }
+
+    .settings,
+    .language-settings {
+      width: min(100%, 520px);
+    }
+
+    .settings-header {
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      justify-content: center;
+      padding: 10px 14px;
+    }
+
+    .settings.open .settings-header {
+      border-radius: 14px 14px 0 0;
+    }
+
+    .settings-toggle {
+      background: transparent;
+      border: 0;
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      font-size: 18px;
+      padding: 4px 8px;
+    }
+
+    .settings-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      display: none;
+      margin-top: 0;
+      padding: 18px;
+      text-align: left;
+    }
+
+    .settings.open .settings-panel {
+      border-radius: 0 0 14px 14px;
+      border-top: 0;
+    }
+
+    .settings-panel.open {
+      display: block;
+    }
+
+    .setting-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+
+    .setting-box + .setting-box {
+      margin-top: 12px;
+    }
+
+    .mode-row,
+    .preset-row,
+    .advanced-row,
+    .language-row {
+      align-items: center;
+      display: flex;
+      gap: 10px;
+      margin: 0 0 14px;
+    }
+
+    .preset-row,
+    .advanced-row {
+      flex-wrap: wrap;
+      margin-bottom: 0;
+    }
+
+    .setting-title {
+      color: var(--muted);
+      flex-basis: 100%;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      line-height: 1.4;
+      margin-bottom: 2px;
+    }
+
+    .language-row {
+      justify-content: space-between;
+      margin-bottom: 0;
+    }
+
+    .language-row select,
+    .advanced-filter {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font: inherit;
+      padding: 6px 10px;
+    }
+
+    .advanced-filter {
+      min-height: 150px;
+      resize: vertical;
+      width: 100%;
+    }
+
+    .apply-button {
+      background: var(--button);
+      border: 1px solid var(--button-border);
+      border-radius: 8px;
+      color: var(--button-text);
+      cursor: pointer;
+      font: inherit;
+      font-weight: 600;
+      margin-top: 12px;
+      padding: 8px 16px;
+    }
+
+    .apply-button:hover,
+    .apply-button:focus-visible {
+      background: var(--button-hover);
+      border-color: var(--button-text);
+      outline: none;
+    }
+
+    .question-pool-debug {
+      border-top: 1px solid var(--border);
+      margin-top: 14px;
+      padding-top: 12px;
+      width: 100%;
+    }
+
+    .question-pool-debug-toggle {
+      background: transparent;
+      border: 0;
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      padding: 4px 0;
+      text-align: left;
+    }
+
+    .question-pool-debug-body {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      padding-top: 8px;
+    }
+
+    .question-pool-debug-summary {
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .mode-row:last-child {
+      margin-bottom: 0;
+    }
+
+    input[type="radio"],
+    input[type="checkbox"] {
+      accent-color: var(--text);
+      height: 18px;
+      width: 18px;
+    }
+
+    #modeLabel {
+      color: var(--muted);
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      line-height: 1.4;
+    }
+
+    .correct {
+      color: var(--blue);
+    }
+
+    .wrong {
+      color: var(--red);
+    }
+
+    @media (max-width: 420px) {
+      main {
+        gap: 18px;
+        padding-inline: 12px;
+      }
+
+      .result-box {
+        min-height: 68px;
+        padding-inline: 10px;
+      }
+
+      .answer-buttons {
+        gap: 6px;
+      }
+
+      .answer-buttons button {
+        border-radius: 5px;
+      }
+    }
+
     /* --- 追加：ヘルプ用モーダルCSS --- */
     .bottom-container {
       display: flex;
